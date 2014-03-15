@@ -1,13 +1,13 @@
-(defproject clojurewerkz/titanium "1.0.0-beta2-SNAPSHOT"
+(defproject kaitanie/titanium "1.0.0-beta3-titan042-SNAPSHOT"
   :description "Titanium a powerful Clojure graph library build on top of Aurelius Titan"
   :url "http://titanium.clojurewerkz.org"
   :license {:name "Eclipse Public License"}
   :dependencies [[org.clojure/clojure                "1.5.1"]
                  [clojurewerkz/support               "0.15.0"]
-                 [com.thinkaurelius.titan/titan-all  "0.3.0"]
-                 [potemkin "0.2.0"]
+                 [com.thinkaurelius.titan/titan-all  "0.4.2"]
+                 [potemkin "0.3.5-SNAPSHOT"]
                  [clojurewerkz/ogre "2.3.0.1"]
-                 [clojurewerkz/archimedes "1.0.0-alpha4"]]
+                 [clojurewerkz/archimedes "1.0.0-alpha6-SNAPSHOT"]]
   :source-paths  ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options     ["-target" "1.6" "-source" "1.6"]
