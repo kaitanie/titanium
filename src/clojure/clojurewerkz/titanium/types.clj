@@ -9,7 +9,7 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns clojurewerkz.titanium.types
-  (:import (com.thinkaurelius.titan.core TypeGroup TitanType TypeMaker$UniquenessConsistency)
+  (:import (com.thinkaurelius.titan.core TitanType TypeMaker$UniquenessConsistency)
            (com.tinkerpop.blueprints Vertex Edge Direction Graph))
   (:use [clojurewerkz.titanium.graph :only (get-graph ensure-graph-is-transaction-safe)]))
 
@@ -17,15 +17,6 @@
   [tname]
   (ensure-graph-is-transaction-safe)
   (.getType (get-graph) (name tname)))
-
-;; The default type group when no group is specified during type construction.
-(def default-group (TypeGroup/DEFAULT_GROUP))
-
-(defn defgroup
-  "Define a TitanGroup."
-  [group-id group-name]
-  (ensure-graph-is-transaction-safe)
-  (TypeGroup/of group-id group-name))
 
 (defn- convert-bool-to-lock
   [b]
@@ -38,12 +29,12 @@
   [type-maker unique-direction unique-locked]
   (when unique-direction
     (when (#{:both :in} unique-direction)
-      (.unique type-maker 
-               Direction/IN                  
+      (.unique type-maker
+               Direction/IN
                (convert-bool-to-lock unique-locked)))
     (when (#{:both :out} unique-direction)
-      (.unique type-maker 
-               Direction/OUT                  
+      (.unique type-maker
+               Direction/OUT
                (convert-bool-to-lock unique-locked)))))
 
 (defn deflabel
@@ -56,12 +47,13 @@
                 signature   nil
                 unique-direction false
                 unique-locked    true
-                group       default-group}}]
+                group       nil}}]
      (ensure-graph-is-transaction-safe)
+     ;; g.makeKey('mid').dataType(String.class).indexed(Vertex.class).unique().single().make();
      (let [type-maker (.. (get-graph)
-                          makeType
-                          (name (name tname))
-                          (group group))]
+                          makeKey
+                          (dataType (.getClass String))
+                          (indexed (.getClass Vertex)))]
        (unique-direction-converter type-maker unique-direction unique-locked)
        (case direction
          "directed"    (.directed type-maker)
@@ -73,26 +65,24 @@
 (defn defkey
   "Creates a property key with the given properties."
   ([tname data-type] (defkey tname data-type {}))
-  ([tname data-type {:keys [unique-direction 
-                            unique-locked 
+  ([tname data-type {:keys [unique-direction
+                            unique-locked
                             group
                             indexed-vertex?
                             indexed-edge?
                             searchable?]
                      :or   {unique-direction false
-                            unique-locked    true
-                            group       default-group}}]
+                            unique-locked    true}}]
      (ensure-graph-is-transaction-safe)
      (let [type-maker   (.. (get-graph)
-                            makeType
-                            (name (name tname))
-                            (group group)
-                            (dataType data-type))]
-       (when indexed-vertex? 
+                            makeKey
+                            (dataType (.getClass String))
+                            (indexed (.getClass Vertex)))]
+       (when indexed-vertex?
          (if searchable?
            (.indexed type-maker "search" Vertex)
            (.indexed type-maker Vertex)))
-       (when indexed-edge? 
+       (when indexed-edge?
          (if searchable?
            (.indexed type-maker "search" Edge)
            (.indexed type-maker Edge)))
